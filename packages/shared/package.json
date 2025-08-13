@@ -1,0 +1,49 @@
+{
+  "name": "@edu-platform/shared",
+  "version": "1.0.0",
+  "description": "Shared types, DTOs, and utilities for EduPlatform",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./events": {
+      "types": "./dist/events/index.d.ts",
+      "require": "./dist/events/index.js",
+      "import": "./dist/events/index.mjs"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/types/index.js",
+      "import": "./dist/types/index.mjs"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "require": "./dist/utils/index.js",
+      "import": "./dist/utils/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@edu-platform/eslint-config": "workspace:*",
+    "@edu-platform/tsconfig": "workspace:*",
+    "@types/node": "^20.8.10",
+    "eslint": "^8.54.0",
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2"
+  }
+}
