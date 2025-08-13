@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: edu-platform
+data:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  
+  # Database URLs (using k8s service names)
+  POSTGRES_HOST: "postgres-service"
+  POSTGRES_PORT: "5432"
+  MONGODB_HOST: "mongodb-service"
+  MONGODB_PORT: "27017"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  
+  # Message Queue
+  RABBITMQ_HOST: "rabbitmq-service"
+  RABBITMQ_PORT: "5672"
+  
+  # Service Discovery
+  CONSUL_HOST: "consul-service"
+  CONSUL_PORT: "8500"
+  
+  # Search
+  ELASTICSEARCH_HOST: "elasticsearch-service"
+  ELASTICSEARCH_PORT: "9200"
+  
+  # Object Storage
+  MINIO_ENDPOINT: "minio-service"
+  MINIO_PORT: "9000"
+  MINIO_BUCKET_NAME: "eduplatform"
+  
+  # Monitoring
+  PROMETHEUS_URL: "http://prometheus-service:9090"
+  GRAFANA_URL: "http://grafana-service:3000"
+  JAEGER_URL: "http://jaeger-service:14268"
+  
+  # Rate Limiting
+  RATE_LIMIT_WINDOW_MS: "60000"
+  RATE_LIMIT_MAX_REQUESTS: "100"
+  
+  # Features
+  FEATURE_AI_TUTOR: "true"
+  FEATURE_LIVE_SESSIONS: "true"
+  FEATURE_CERTIFICATES: "true"
+  FEATURE_AFFILIATES: "false"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: edu-platform
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+        
+        sendfile        on;
+        keepalive_timeout  65;
+        
+        # HLS Configuration
+        server {
+            listen 80;
+            server_name _;
+            
+            location /media/ {
+                alias /var/www/media/;
+                
+                # CORS headers
+                add_header Access-Control-Allow-Origin *;
+                add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+                add_header Access-Control-Allow-Headers 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+                add_header Access-Control-Expose-Headers 'Content-Length,Content-Range';
+                
+                # HLS specific headers
+                location ~* \.(m3u8)$ {
+                    add_header Cache-Control no-cache;
+                }
+                
+                location ~* \.(ts)$ {
+                    add_header Cache-Control "public, max-age=31536000";
+                }
+            }
+            
+            location /health {
+                access_log off;
+                return 200 "healthy\n";
+                add_header Content-Type text/plain;
+            }
+        }
+    }

@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: edu-platform
+  labels:
+    name: edu-platform
+    environment: production
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: edu-platform-monitoring
+  labels:
+    name: edu-platform-monitoring
+    environment: production
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: edu-platform-staging
+  labels:
+    name: edu-platform-staging
+    environment: staging
