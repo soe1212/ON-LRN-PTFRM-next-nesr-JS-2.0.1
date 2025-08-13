@@ -1,0 +1,23 @@
+{
+  "name": "@edu-platform/eslint-config",
+  "version": "1.0.0",
+  "description": "Shared ESLint configuration for EduPlatform",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "react.js",
+    "next.js"
+  ],
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "eslint-config-next": "14.0.3",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.54.0",
+    "typescript": "^5.2.2"
+  }
+}

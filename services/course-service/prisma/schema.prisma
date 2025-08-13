@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  shortDescription String?
+  thumbnail   String?
+  previewVideo String?
+  
+  // Pricing
+  price         Float
+  discountPrice Float?
+  currency      String @default("USD")
+  
+  // Course Info
+  level         CourseLevel
+  status        CourseStatus @default(DRAFT)
+  language      String @default("en")
+  category      String
+  subcategory   String?
+  tags          String[]
+  requirements  String[]
+  learningObjectives String[]
+  
+  // Instructor
+  instructorId  String
+  
+  // Stats
+  rating        Float @default(0)
+  totalRatings  Int   @default(0)
+  totalStudents Int   @default(0)
+  duration      Int   @default(0) // in minutes
+  totalLectures Int   @default(0)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  publishedAt DateTime?
+  
+  // Relations
+  sections Section[]
+  
+  @@map("courses")
+}
+
+model Section {
+  id          String @id @default(cuid())
+  title       String
+  description String?
+  order       Int
+  courseId    String
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  course   Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lectures Lecture[]
+  
+  @@map("sections")
+}
+
+model Lecture {
+  id          String @id @default(cuid())
+  title       String
+  description String?
+  type        ContentType
+  duration    Int @default(0) // in minutes
+  
+  // Video content
+  videoUrl     String?
+  hlsUrl       String?
+  thumbnailUrl String?
+  
+  // Article content
+  articleContent String?
+  
+  // Settings
+  isPreview Boolean @default(false)
+  order     Int
+  sectionId String
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  section   Section    @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  resources Resource[]
+  
+  @@map("lectures")
+}
+
+model Resource {
+  id        String @id @default(cuid())
+  title     String
+  type      ResourceType
+  url       String
+  size      Int? // in bytes
+  lectureId String
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  lecture Lecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  
+  @@map("resources")
+}
+
+enum CourseStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  ALL_LEVELS
+}
+
+enum ContentType {
+  VIDEO
+  ARTICLE
+  QUIZ
+  ASSIGNMENT
+  RESOURCE
+}
+
+enum ResourceType {
+  PDF
+  DOC
+  ZIP
+  LINK
+  OTHER
+}
