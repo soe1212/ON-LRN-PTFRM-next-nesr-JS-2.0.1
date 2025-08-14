@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Progress {
+  id                String   @id @default(cuid())
+  userId            String
+  courseId          String
+  completedLectures String[] // Array of lecture IDs
+  currentLecture    String?
+  progressPercentage Float   @default(0)
+  timeSpent         Int      @default(0) // in minutes
+  lastAccessedAt    DateTime @default(now())
+  startedAt         DateTime @default(now())
+  completedAt       DateTime?
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, courseId])
+  @@map("progress")
+}
+
+model Certificate {
+  id             String   @id @default(cuid())
+  userId         String
+  courseId       String
+  certificateUrl String
+  verificationId String   @unique
+  issuedAt       DateTime @default(now())
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, courseId])
+  @@map("certificates")
+}
+
+model LearningStreak {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  currentStreak Int     @default(0)
+  longestStreak Int     @default(0)
+  lastStudyDate DateTime?
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("learning_streaks")
+}
+
+model StudySession {
+  id         String   @id @default(cuid())
+  userId     String
+  courseId   String
+  lectureId  String?
+  duration   Int      // in minutes
+  startedAt  DateTime
+  endedAt    DateTime?
+  completed  Boolean  @default(false)
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("study_sessions")
+}

@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  orderId         String        @unique
+  userId          String
+  amount          Float
+  currency        String        @default("USD")
+  status          PaymentStatus @default(PENDING)
+  paymentMethod   String
+  stripePaymentId String?
+  stripeClientSecret String?
+  
+  // Metadata
+  metadata Json?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  paidAt    DateTime?
+  
+  @@map("payments")
+}
+
+model Refund {
+  id        String       @id @default(cuid())
+  paymentId String
+  amount    Float
+  reason    String?
+  status    RefundStatus @default(PENDING)
+  stripeRefundId String?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  processedAt DateTime?
+  
+  @@map("refunds")
+}
+
+model PaymentMethod {
+  id           String @id @default(cuid())
+  userId       String
+  type         String // 'card', 'paypal', etc.
+  stripeMethodId String @unique
+  last4        String?
+  brand        String?
+  expiryMonth  Int?
+  expiryYear   Int?
+  isDefault    Boolean @default(false)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("payment_methods")
+}
+
+model Transaction {
+  id            String          @id @default(cuid())
+  userId        String
+  type          TransactionType
+  amount        Float
+  currency      String          @default("USD")
+  description   String
+  referenceId   String? // order ID, refund ID, etc.
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  
+  @@map("transactions")
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
+enum RefundStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+}
+
+enum TransactionType {
+  PAYMENT
+  REFUND
+  PAYOUT
+  FEE
+}

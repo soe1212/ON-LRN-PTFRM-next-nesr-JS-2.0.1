@@ -15,6 +15,10 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     CREATE DATABASE compliance;
     CREATE DATABASE assessments;
     CREATE DATABASE ai_tutor;
+    
+    -- Enable vector extension for AI tutor service
+    \c ai_tutor;
+    CREATE EXTENSION IF NOT EXISTS vector;
 EOSQL
 
 echo "Multiple PostgreSQL databases created successfully!"

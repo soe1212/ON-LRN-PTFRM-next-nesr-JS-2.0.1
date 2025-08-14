@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id         String    @id @default(cuid())
+  userId     String?
+  sessionId  String?
+  eventType  String
+  eventName  String
+  properties Json?
+  timestamp  DateTime  @default(now())
+  
+  // Context
+  userAgent  String?
+  ipAddress  String?
+  country    String?
+  city       String?
+  device     String?
+  browser    String?
+  os         String?
+  
+  // Course context
+  courseId   String?
+  lectureId  String?
+  
+  @@index([eventType, timestamp])
+  @@index([userId, timestamp])
+  @@index([courseId, timestamp])
+  @@map("events")
+}
+
+model DailyMetrics {
+  id                String   @id @default(cuid())
+  date              DateTime @unique
+  totalUsers        Int      @default(0)
+  activeUsers       Int      @default(0)
+  newUsers          Int      @default(0)
+  totalSessions     Int      @default(0)
+  avgSessionDuration Float   @default(0)
+  totalPageViews    Int      @default(0)
+  totalRevenue      Float    @default(0)
+  totalOrders       Int      @default(0)
+  
+  // Course metrics
+  coursesViewed     Int      @default(0)
+  coursesStarted    Int      @default(0)
+  coursesCompleted  Int      @default(0)
+  lecturesWatched   Int      @default(0)
+  
+  @@map("daily_metrics")
+}
+
+model CourseMetrics {
+  id               String   @id @default(cuid())
+  courseId         String
+  date             DateTime
+  views            Int      @default(0)
+  enrollments      Int      @default(0)
+  completions      Int      @default(0)
+  avgRating        Float    @default(0)
+  totalRatings     Int      @default(0)
+  revenue          Float    @default(0)
+  refunds          Float    @default(0)
+  
+  @@unique([courseId, date])
+  @@map("course_metrics")
+}
+
+model UserMetrics {
+  id              String   @id @default(cuid())
+  userId          String
+  date            DateTime
+  sessionsCount   Int      @default(0)
+  totalDuration   Int      @default(0) // in minutes
+  coursesViewed   Int      @default(0)
+  lecturesWatched Int      @default(0)
+  quizzesTaken    Int      @default(0)
+  
+  @@unique([userId, date])
+  @@map("user_metrics")
+}
+
+model Funnel {
+  id          String   @id @default(cuid())
+  name        String
+  steps       Json     // Array of step definitions
+  isActive    Boolean  @default(true)
+  
+  // Relations
+  conversions FunnelConversion[]
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("funnels")
+}
+
+model FunnelConversion {
+  id        String   @id @default(cuid())
+  funnelId  String
+  userId    String?
+  sessionId String
+  step      Int
+  timestamp DateTime @default(now())
+  
+  // Relations
+  funnel Funnel @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+  
+  @@map("funnel_conversions")
+}
